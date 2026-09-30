@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Event Planner (MEP)</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+<body>
+
+    <div class="test-environment-bar">
+        <span>Simulasikan Status Akun:</span>
+        <button onclick="setRoleViaTest('GUEST')" class="test-btn active" id="tbtn-guest">Guest</button>
+        <button onclick="setRoleViaTest('USER')" class="test-btn" id="tbtn-user">Logged-In User</button>
+        <button onclick="setRoleViaTest('PROMOTER')" class="test-btn" id="tbtn-promoter">Verified Promoter</button>
+    </div>
+
+    <div class="app-viewport-wrapper">
+        
+        <header class="app-bar">
+            <button id="back-btn" class="icon-btn hidden" onclick="navigateBack()"><i class="material-icons">arrow_back</i></button>
+            <h1 id="app-title">Upcoming Events</h1>
+            <span id="role-indicator-badge" class="badge-role guest-role">GUEST</span>
+        </header>
+
+        <main class="content-area">
+
+            <section id="page-home" class="page">
+                <div class="welcome-section">
+                    <div class="welcome-text">
+                        <h2 id="welcome-title">Hello, Guest!</h2>
+                        <p>Temukan berbagai event seru di sekitarmu</p>
+                    </div>
+                </div>
+
+                <div class="chips-container" id="home-category-chips">
+                    <span class="chip active" onclick="filterByCategory('ALL')">Semua</span>
+                    <span class="chip" onclick="filterByCategory('MUSIKAL')">Musikal</span>
+                    <span class="chip" onclick="filterByCategory('KONSER')">Konser</span>
+                    <span class="chip" onclick="filterByCategory('MAKANAN')">Makanan</span>
+                    <span class="chip" onclick="filterByCategory('SPORTS')">Sports</span>
+                    <span class="chip" onclick="filterByCategory('CULTURAL')">Cultural</span>
+                    <span class="chip" onclick="filterByCategory('SEMINAR')">Seminar</span>
+                    <span class="chip" onclick="filterByCategory('LARP')">Action-RPG</span>
+                    <span class="chip" onclick="filterByCategory('TEKNOLOGI')">Teknologi</span>
+                    <span class="chip" onclick="filterByCategory('SENI')">Seni Rupa</span>
+                </div>
+
+                <div class="event-list" id="home-event-list"></div>
+            </section>
+
+            <section id="page-search" class="page hidden">
+                <div class="search-bar-container">
+                    <i class="material-icons search-icon">search</i>
+                    <input type="text" id="search-input-field" placeholder="Cari nama atau deskripsi event..." class="search-input" oninput="handleSearchQuery()">
+                </div>
+                
+                <div class="chips-container" id="search-category-chips">
+                    <span class="chip active" onclick="filterSearchCategory('ALL')">Semua Kategori</span>
+                    <span class="chip" onclick="filterSearchCategory('MUSIKAL')">Musikal</span>
+                    <span class="chip" onclick="filterSearchCategory('KONSER')">Konser</span>
+                    <span class="chip" onclick="filterSearchCategory('MAKANAN')">Makanan</span>
+                    <span class="chip" onclick="filterSearchCategory('SPORTS')">Sports</span>
+                    <span class="chip" onclick="filterSearchCategory('CULTURAL')">Cultural</span>
+                    <span class="chip" onclick="filterSearchCategory('SEMINAR')">Seminar</span>
+                    <span class="chip" onclick="filterSearchCategory('LARP')">Action-RPG</span>
+                </div>
+                <div class="event-list" id="search-event-list"></div>
+            </section>
+
+            <section id="page-forum" class="page hidden">
+                <div class="locked-state" id="forum-locked-view">
+                    <i class="material-icons lock-large">chat_bubble_outline</i>
+                    <h3>Gabung ke Forum MEP</h3>
+                    <p>Anda harus masuk (login) terlebih dahulu untuk melihat forum diskusi, berinteraksi, dan mencari teman pergi bareng.</p>
+                    <button class="btn-primary" onclick="navigateTo('page-profile')">Ke Halaman Login</button>
+                </div>
+
+                <div class="unlocked-state hidden" id="forum-active-view">
+                    <div class="forum-header-context">
+                        <h3>Diskusi Komunitas MEP</h3>
+                        <p>Berbagi info strategi, koordinasi kostum, atau cari teman berangkat bareng.</p>
+                    </div>
+                    <div id="forum-posts-stream"></div>
+                </div>
+            </section>
+
+            <section id="page-profile" class="page hidden">
+                <div class="profile-card">
+                    <div class="avatar-circle"><i class="material-icons">account_circle</i></div>
+                    <h3 id="profile-name">Pengunjung (Guest)</h3>
+                    <p id="profile-subtext">Masuk untuk memesan tiket berbayar & akses forum</p>
+                    
+                    <button class="btn-primary-action" id="profile-core-action-btn" onclick="handleProfileCoreAction()">LOGIN SEKARANG</button>
+                    <button class="btn-secondary hidden" id="btn-promoter-create-event" onclick="openModal('modal-create-event')"><i class="material-icons">add</i> Buat Event Baru</button>
+                </div>
+
+                <div class="section-label">HAK AKSES FITUR ANDA</div>
+                <div class="settings-list">
+                    <div class="settings-item">
+                        <div class="setting-info">
+                            <span>Daftar Event Gratis</span>
+                            <p class="sub-setting-desc">Bisa mendaftar langsung tanpa akun</p>
+                        </div>
+                        <i class="material-icons text-green" id="access-guest-check">check_circle</i>
+                    </div>
+                    <div class="settings-item">
+                        <div class="setting-info">
+                            <span>Beli Tiket Premium & Forum</span>
+                            <p class="sub-setting-desc">Memerlukan otentikasi User</p>
+                        </div>
+                        <i class="material-icons text-grey" id="access-user-check">cancel</i>
+                    </div>
+                    <div class="settings-item">
+                        <div class="setting-info">
+                            <span>Manajemen Promotor (Listing Gratis)</span>
+                            <p class="sub-setting-desc">Memerlukan verifikasi NIK KTP</p>
+                        </div>
+                        <i class="material-icons text-grey" id="access-promoter-check">cancel</i>
+                    </div>
+                </div>
+            </section>
+
+            <section id="page-event-details" class="page hidden">
+                <div class="details-gradient-header" id="detail-gradient">
+                    <span class="event-badge" id="detail-badge">EVENT</span>
+                    <span class="sponsored-badge hidden" id="detail-sponsored-tag">SPONSORED ADS</span>
+                </div>
+                <div class="details-body">
+                    <h2 id="detail-title">Nama Event</h2>
+                    
+                    <div class="details-grid-info">
+                        <div class="info-card">
+                            <i class="material-icons color-purple">calendar_today</i>
+                            <div>
+                                <h4>Waktu</h4>
+                                <p id="detail-date">-</p>
+                            </div>
+                        </div>
+                        <div class="info-card">
+                            <i class="material-icons color-purple">location_on</i>
+                            <div>
+                                <h4>Lokasi Tempat</h4>
+                                <p id="detail-location">-</p>
+                            </div>
+                        </div>
+                        <div class="info-card">
+                            <i class="material-icons color-purple">business</i>
+                            <div>
+                                <h4>Penyelenggara</h4>
+                                <p id="detail-organizer">-</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h3>Deskripsi Event</h3>
+                    <p class="about-text" id="detail-about">-</p>
+                </div>
+                <div class="sticky-bottom-bar">
+                    <div>
+                        <span class="price-label">Biaya Pendaftaran</span>
+                        <div class="price-value" id="detail-price">Rp 0</div>
+                    </div>
+                    <button class="btn-action-primary-cta" id="detail-cta-btn" onclick="handleEventRegistrationTrigger()">Daftar Event</button>
+                </div>
+            </section>
+
+        </main>
+
+        <nav class="bottom-nav" id="main-bottom-nav">
+            <div class="nav-item active" onclick="handleTabClick('page-home', this)">
+                <i class="material-icons">home</i>
+                <span>Home</span>
+            </div>
+            <div class="nav-item" onclick="handleTabClick('page-search', this)">
+                <i class="material-icons">search</i>
+                <span>Search</span>
+            </div>
+            <div class="nav-item" onclick="handleTabClick('page-forum', this)">
+                <i class="material-icons">forum</i>
+                <span>Forum</span>
+            </div>
+            <div class="nav-item" onclick="handleTabClick('page-profile', this)">
+                <i class="material-icons">person</i>
+                <span>Profile</span>
+            </div>
+        </nav>
+
+        <div class="modal-backdrop hidden" id="modal-backdrop" onclick="closeAllModals()"></div>
+
+        <div class="bottom-sheet hidden" id="modal-guest-reg">
+            <h3>Registrasi Pengunjung (Event Gratis)</h3>
+            <p class="sheet-sub">Isi data singkat untuk mengamankan slot e-ticket gratis Anda tanpa perlu login.</p>
+            <div class="input-field"><input type="text" id="guest-reg-name" placeholder="Nama Lengkap"></div>
+            <div class="input-field"><input type="email" id="guest-reg-email" placeholder="Alamat Email"></div>
+            <div class="sheet-actions">
+                <button class="btn-text" onclick="closeAllModals()">Batal</button>
+                <button class="btn-primary" onclick="confirmGuestFreeRegistration()">Dapatkan Tiket Gratis</button>
+            </div>
+        </div>
+
+        <div class="bottom-sheet hidden" id="modal-payment-gateway">
+            <h3>Checkout Pembayaran Tiket</h3>
+            <p class="sheet-sub">Selesaikan transaksi pembayaran instan untuk mendapatkan kode masuk event.</p>
+            <div class="inner-summary-card">
+                <h4 id="pay-summary-title">-</h4>
+                <p id="pay-summary-price" class="purple-accent-text">Rp 0</p>
+            </div>
+            <label class="input-label-context">Pilih Metode Transaksi</label>
+            <div class="radio-group">
+                <label class="radio-container"><input type="radio" checked name="pay-method"><span class="radio-mark"></span> QRIS Instan</label>
+                <label class="radio-container"><input type="radio" name="pay-method"><span class="radio-mark"></span> Kartu Kredit</label>
+            </div>
+            <div class="sheet-actions">
+                <button class="btn-text" onclick="closeAllModals()">Batal</button>
+                <button class="btn-primary" onclick="confirmPaidPaymentTransaction()">Bayar Sekarang</button>
+            </div>
+        </div>
+
+        <div class="bottom-sheet hidden" id="modal-promoter-verification">
+            <h3>Security Verification Wall</h3>
+            <p class="sheet-sub text-warning">MEP mewajibkan verifikasi identitas resmi demi menghindari penipuan tiket atau event fiktif.</p>
+            <div class="input-field"><input type="text" id="verify-org-name" placeholder="Nama Instansi / Komunitas"></div>
+            <div class="input-field"><input type="number" id="verify-ktp" placeholder="NIK KTP Penanggung Jawab (16 Digit)"></div>
+            <div class="input-field"><input type="text" id="verify-portfolio" placeholder="Tautan Website/Medsos Komunitas (https://)"></div>
+            <div class="file-upload-row">
+                <button class="btn-secondary-pill"><i class="material-icons">file_upload</i> Unggah Foto KTP</button>
+                <span class="file-status-text">ktp_card_holder.jpg (Terlampir)</span>
+            </div>
+            <div class="sheet-actions spacing-top">
+                <button class="btn-primary width-full" onclick="submitSecurityVerification()">Kirim & Aktivasi Akun Promotor</button>
+            </div>
+        </div>
+
+        <div class="bottom-sheet hidden" id="modal-create-event">
+            <h3>Buat & Promosikan Event</h3>
+            <p class="sheet-sub">Sebagai promotor terverifikasi, mendaftarkan event baru tidak dikenakan biaya.</p>
+            <div class="input-field"><input type="text" id="new-title" placeholder="Judul / Nama Event"></div>
+            <div class="input-field">
+                <select id="new-category">
+                    <option value="" disabled selected>Pilih Kategori</option>
+                    <option value="MUSIKAL">Musikal</option>
+                    <option value="KONSER">Konser</option>
+                    <option value="MAKANAN">Makanan</option>
+                    <option value="SPORTS">Sports</option>
+                    <option value="CULTURAL">Cultural</option>
+                    <option value="SEMINAR">Seminar</option>
+                    <option value="LARP">Action-RPG (LARP)</option>
+                    <option value="TEKNOLOGI">Teknologi</option>
+                    <option value="SENI">Seni Rupa</option>
+                </select>
+            </div>
+            <div class="row-inputs">
+                <div class="input-field"><input type="number" id="new-price" value="0"><span class="field-label-tag">Harga Tiket (Rp)</span></div>
+                <div class="input-field"><input type="text" id="new-date" placeholder="Contoh: 24 July 2026"></div>
+            </div>
+            <div class="input-field"><input type="text" id="new-location" placeholder="Lokasi Gedung/Kota"></div>
+            <div class="input-field"><textarea id="new-desc" placeholder="Rincian informasi event..." rows="3"></textarea></div>
+            
+            <div class="toggle-box-row">
+                <div class="toggle-text-info">
+                    <span>Pasang Iklan Promosi Premium</span>
+                    <p class="sub-toggle-desc">Sematkan label khusus "SPONSORED ADS" di beranda utama</p>
+                </div>
+                <label class="switch"><input type="checkbox" id="new-is-sponsored"><span class="slider"></span></label>
+            </div>
+            <button class="btn-primary width-full spacing-top" onclick="savePromoterNewEvent()">Terbitkan Event Sekarang</button>
+        </div>
+
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
